@@ -8,6 +8,14 @@
 
 ### Installation
 
+Debian >= 10
+
+```
+sudo apt install chkservice
+```
+
+Ubuntu
+
 ```
 sudo add-apt-repository ppa:linuxenko/chkservice
 sudo apt-get update
