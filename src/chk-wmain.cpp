@@ -28,8 +28,8 @@
 #include <iomanip>
 
 MainWindow::MainWindow() {
-  resize();
-  std::signal(SIGWINCH, MainWindow::sigwinch);
+  setSize();
+
   padding->x = 2;
   padding->y = 2;
 }
@@ -38,20 +38,42 @@ MainWindow::~MainWindow() {
   delwin(win);
 }
 
-void MainWindow::sigwinch(int c) {
-  stopCurses();
-  exit(0);
+void MainWindow::resize() {
+  // Tear current window down
+  endwin();
+  wrefresh(stdscr);
+  clear();
+  delwin(win);
+
+  // Bring up a new one
+  setSize();
+  createWindow();
+
+  // This case handles resizing to smaller window
+  // We need to make sure that currently selected line
+  // will appear in newly created window.
+  // If selected line number is greater than newly created window height,
+  // we make this line the first line at the top of this new window.
+  if ((selected + 1 + padding->x) >= screenSize->h) {
+    start = start + selected;
+    selected = 0;
+  }
+
+  drawUnits();
+}
+
+
+void MainWindow::createWindow() {
+  win = newwin(screenSize->h, screenSize->w, 0, 0);
 }
 
 void MainWindow::createMenu() {
-  win = newwin(screenSize->h, screenSize->w, 0, 0);
-  keypad(win, true);
-  keypad(stdscr, true);
+  createWindow();
 
   while(1) {
     drawUnits();
 
-    int key = wgetch(win);
+    int key = wgetch(stdscr);
     error(NULL);
 
     switch(key) {
@@ -90,13 +112,16 @@ void MainWindow::createMenu() {
       case '?':
         aboutWindow(screenSize);
         break;
+      case KEY_RESIZE:
+        resize();
+        break;
       default:
         break;
     }
   }
 }
 
-void MainWindow::resize() {
+void MainWindow::setSize() {
   getmaxyx(stdscr, screenSize->h, screenSize->w);
 }
 

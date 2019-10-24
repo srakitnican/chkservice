@@ -33,6 +33,8 @@ void startCurses() {
   init_pair(3, COLOR_BLUE, COLOR_BLACK);
   init_pair(4, COLOR_CYAN, COLOR_BLACK);
   init_pair(5, COLOR_MAGENTA, COLOR_BLACK);
+
+  keypad(stdscr, true);
 }
 
 void stopCurses() {
