@@ -2,7 +2,7 @@
  *    chkservice is a tool for managing systemd units.
  *    more infomration at https://github.com/linuxenko/chkservice
  *
- *    Copyright (C) 2017 Svetlana Linuxenko <svetlana(at)linuxenko.pro>
+ *    Copyright (C) 2017 Svetlana Linuxenko
  *
  *    chkservice program is free software: you can redistribute it and/or modify
  *    it under the terms of the GNU General Public License as published by
@@ -42,6 +42,6 @@
     Space - enable/disable.  s - start/stop unit.\n\
 \n\
   License:\n\
-    GPLv3 (c) Svetlana Linuxenko <svetlana(at)linuxenko.pro>"
+    GPLv3 (c) Svetlana Linuxenko"
 
 #endif
