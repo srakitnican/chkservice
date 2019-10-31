@@ -1,5 +1,7 @@
 ## chkservice
 
+[![Build Status](https://img.shields.io/travis/linuxenko/chkservice.svg?style=flat-square)](https://travis-ci.org/linuxenko/chkservice)
+
 [![screenshot](https://raw.githubusercontent.com/linuxenko/linuxenko.github.io/master/media/chkservice/chkservice.png)](https://raw.githubusercontent.com/linuxenko/linuxenko.github.io/master/media/chkservice/chkservice.png)
 
 > chkservice is a tool for managing systemd units in terminal.
@@ -80,11 +82,10 @@ cmake ....
 make Test
 ```
 
-[![Build Status](https://img.shields.io/travis/linuxenko/chkservice.svg?style=flat-square)](https://travis-ci.org/linuxenko/chkservice) until travis run it on `trusty` based containers
-
 ### Changelog
 
-  * Window resize supoport added by Gilles Talis <gilles.talis@gmail.com>
+  * v0.2 - Integration with Travis was fixed
+  * v0.2 - Window resize supoport added by Gilles Talis <gilles.talis@gmail.com>
 
 
 ### License
