@@ -82,15 +82,13 @@ make Test
 
 [![Build Status](https://img.shields.io/travis/linuxenko/chkservice.svg?style=flat-square)](https://travis-ci.org/linuxenko/chkservice) until travis run it on `trusty` based containers
 
+### Changelog
 
-### TODO
+  * Window resize supoport added by Gilles Talis <gilles.talis@gmail.com>
 
- - [ ] - `.login1` target support (if someone request it)
 
 ### License
 GNU General Public License
 
 chkservice is a tool for managing systemd units.
 more infomration at https://github.com/linuxenko/chkservice
-
-Copyright (C) 2017 Svetlana Linuxenko <svetlana(at)linuxenko.pro>
