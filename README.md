@@ -6,6 +6,8 @@
 
 > chkservice is a tool for managing systemd units in terminal.
 
+[![Packaging status](https://repology.org/badge/vertical-allrepos/chkservice.svg)](https://repology.org/metapackage/chkservice)
+
 ### Installation
 
 Debian >= 10
