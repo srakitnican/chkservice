@@ -1,5 +1,6 @@
 sudo: true
-dist: trusty
+# After a few years
+dist: xenial
 language: c++
 env:
   - DEBUG=1
