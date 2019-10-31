@@ -82,6 +82,10 @@ make Test
 
 [![Build Status](https://img.shields.io/travis/linuxenko/chkservice.svg?style=flat-square)](https://travis-ci.org/linuxenko/chkservice) until travis run it on `trusty` based containers
 
+### Changelog
+
+  * Window resize supoport added by Gilles Talis <gilles.talis@gmail.com>
+
 
 ### License
 GNU General Public License
