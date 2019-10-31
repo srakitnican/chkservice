@@ -33,7 +33,6 @@ typedef struct RECTANGLE {
 
 class MainWindow {
   public:
-    static void sigwinch(int c);
     WINDOW *win;
     MainWindow();
     ~MainWindow();
@@ -46,7 +45,9 @@ class MainWindow {
     std::vector<UnitItem *> units;
     int selected = 0;
     int start = 0;
+    void createWindow();
     void resize();
+    void setSize();
     void moveUp();
     void moveDown();
     void movePageUp();
