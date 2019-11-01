@@ -19,10 +19,22 @@
  */
 
 #ifndef _CHK_UI_H
-#define _CHKUI_H
+#define _CHK_UI_H
 
 #include <curses.h>
 #include "chk-ctl.h"
+
+enum _INPUT_FOR {
+  INPUT_FOR_LIST,
+  INPUT_FOR_SEARCH
+};
+
+/*
+ * Makros that helps get control key combinations work properly
+ */
+#ifndef CTRL
+#define CTRL(c) ((c) & 037)
+#endif
 
 typedef struct RECTANGLE {
   int x;
@@ -45,6 +57,8 @@ class MainWindow {
     std::vector<UnitItem *> units;
     int selected = 0;
     int start = 0;
+    int totalUnits();
+    unsigned char inputFor = 0;
     void createWindow();
     void resize();
     void setSize();
@@ -52,14 +66,26 @@ class MainWindow {
     void moveDown();
     void movePageUp();
     void movePageDown();
+    void movePageEnd();
+    void moveTo(int position);
     void drawUnits();
     void drawItem(UnitItem *unit, int y);
+    void drawStatus(int position, const char *text, int color);
     void drawInfo();
     void toggleUnitState();
     void toggleUnitSubState();
     void updateUnits();
     void error(char *err);
     void reloadAll();
+    void listInput(int key);
+    /*
+     * Status bar
+     */
+    char searchString[BUFSIZ] = "";
+    int lastFound = 0;
+    void drawSearch();
+    void searchInput(int key);
+    void searchNext();
 };
 
 void startCurses();

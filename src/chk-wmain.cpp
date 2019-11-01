@@ -62,7 +62,6 @@ void MainWindow::resize() {
   drawUnits();
 }
 
-
 void MainWindow::createWindow() {
   win = newwin(screenSize->h, screenSize->w, 0, 0);
 }
@@ -76,53 +75,185 @@ void MainWindow::createMenu() {
     int key = wgetch(stdscr);
     error(NULL);
 
-    switch(key) {
-      case 'k':
-      case KEY_UP:
-        moveUp();
-        break;
-      case 'j':
-      case KEY_DOWN:
-        moveDown();
-        break;
-      case 'f':
-      case KEY_NPAGE:
-        movePageDown();
-        break;
-      case 'b':
-      case KEY_PPAGE:
-        movePageUp();
-        break;
-      case 'q':
-        stopCurses();
-        delwin(win);
-        exit(0);
-        break;
-      case ' ':
-        toggleUnitState();
-        break;
-      case 's':
-        toggleUnitSubState();
-        break;
-      case 'r':
-        updateUnits();
-        drawUnits();
-        error((char *)"Updated..");
-        break;
-      case '?':
-        aboutWindow(screenSize);
-        break;
-      case KEY_RESIZE:
-        resize();
+    switch(inputFor) {
+      case INPUT_FOR_SEARCH:
+        searchInput(key);
         break;
       default:
+        listInput(key);
         break;
     }
   }
 }
 
+void MainWindow::listInput(int key) {
+  switch(key) {
+    case '/':
+      inputFor = INPUT_FOR_SEARCH;
+      break;
+    case 'k':
+    case 'p':
+    case KEY_UP:
+    case CTRL('p'):
+      moveUp();
+      break;
+    case 'j':
+    case 'n':
+    case KEY_DOWN:
+    case CTRL('n'):
+      moveDown();
+      break;
+    case 'f':
+    case KEY_NPAGE:
+    case CTRL('f'):
+      movePageDown();
+      break;
+    case 'b':
+    case KEY_PPAGE:
+    case CTRL('b'):
+      movePageUp();
+      break;
+    case 'q':
+      stopCurses();
+      delwin(win);
+      exit(0);
+      break;
+    case ' ':
+      toggleUnitState();
+      break;
+    case 's':
+      toggleUnitSubState();
+      break;
+    case 'r':
+      updateUnits();
+      drawUnits();
+      error((char *)"Updated..");
+      break;
+    case 'G':
+      movePageEnd();
+      break;
+    case 'g':
+      start = 0;
+      selected = 0;
+      moveUp();
+      break;
+    case '?':
+      aboutWindow(screenSize);
+      break;
+    case KEY_RESIZE:
+      resize();
+      break;
+    default:
+      break;
+  }
+}
+
+void MainWindow::searchInput(int key) {
+  int slen;
+
+  switch(key) {
+    case 27: // ESC
+      memset(searchString, 0, BUFSIZ);
+      inputFor = INPUT_FOR_LIST;
+      break;
+    case KEY_ENTER: // Ctrl-M
+    case 10: // Enter
+      searchNext();
+      break;
+    case KEY_BACKSPACE:
+      slen = strlen(searchString);
+      if (slen > 0) {
+        searchString[slen - 1] = 0;
+      } else {
+        inputFor = INPUT_FOR_LIST;
+      }
+      break;
+    default:
+      /*
+       * A new search
+       */
+      if (lastFound != 0) {
+        memset(searchString, 0, BUFSIZ);
+        lastFound = 0;
+      }
+
+      /*
+       * Using something that looks like a string for search
+       */
+      if (key > 10 && key < 128) {
+        sprintf(searchString, "%s%c", searchString, key);
+      }
+      break;
+  }
+}
+
+void MainWindow::drawSearch() {
+  /*
+   * Lets indicate it is a search input
+   */
+  char text[BUFSIZ] = "/";
+
+  if (lastFound == 0) {
+     sprintf(text, "%s%s", text, searchString);
+  }
+
+  /*
+   * Draw it using any visible, light color
+   */
+  drawStatus(1, text, 0);
+}
+
+/*
+ * Looking for a next match
+ */
+void MainWindow::searchNext() {
+  int position = 0;
+
+  for (auto unit : units) {
+    if (unit->id.size() == 0) {
+      continue;
+    }
+
+    if (lastFound < position && unit->id.rfind(searchString) != std::string::npos) {
+      inputFor = INPUT_FOR_LIST;
+      lastFound = position;
+      moveTo(position);
+      return;
+    }
+
+    position++;
+  }
+
+  /*
+   * Nothing found
+   */
+  inputFor = INPUT_FOR_LIST;
+
+  /*
+   * Nothing at all
+   */
+  if (lastFound == 0) {
+    memset(searchString, 0, BUFSIZ);
+    return;
+  }
+
+  /*
+   * Repeat search
+   */
+  lastFound = 0;
+  searchNext();
+}
+
 void MainWindow::setSize() {
   getmaxyx(stdscr, screenSize->h, screenSize->w);
+}
+
+void MainWindow::moveTo(int position) {
+  start = selected = 0;
+
+  for (int i = 0; i < position; i++) {
+      moveDown();
+  }
 }
 
 void MainWindow::moveUp() {
@@ -198,6 +329,18 @@ void MainWindow::movePageDown() {
   }
 }
 
+void MainWindow::movePageEnd() {
+  int ps = winSize->h - 3;
+  int max = units.size() - 1;
+
+  start = max - ps;
+  selected = ps;
+
+  if (units[start + selected]->id.size() == 0) {
+    moveDown();
+  }
+}
+
 void MainWindow::reloadAll() {
   try {
     ctl->bus->reloadDaemon();
@@ -242,7 +385,11 @@ void MainWindow::drawUnits() {
     wattroff(win, A_REVERSE);
   }
 
-  drawInfo();
+  if (inputFor == INPUT_FOR_LIST) {
+    drawInfo();
+  } else {
+    drawSearch();
+  }
 
   refresh();
   wrefresh(win);
@@ -258,16 +405,11 @@ void MainWindow::drawItem(UnitItem *unit, int y) {
       title[0] = std::toupper(title[0]);
 
       printInMiddle(win, y, 0, winSize->w, (char *)"", COLOR_PAIR(3), (char *)' ');
-      printInMiddle(win, y, 0, winSize->w / 2, (char *)title.c_str(), COLOR_PAIR(3), (char *)' ');
+      printInMiddle(win, y, 0, winSize->w / 2, (char *)title.c_str(),
+          COLOR_PAIR(3), (char *)' ');
     }
     return;
   }
-
-
-//    if (unit->id.find("acpid.service") == 0) {
-//      std::cout << unit->id << " " << unit->state << UNIT_STATE_DISABLED <<  std::endl;
-//      exit(0);
-//    }
 
   if (unit->state == UNIT_STATE_ENABLED) {
     wattron(win, COLOR_PAIR(2));
@@ -334,7 +476,32 @@ void MainWindow::drawItem(UnitItem *unit, int y) {
   mvwprintw(win, y, leftPad, "%s", name.c_str());
 }
 
+/*
+ * Status line has a great potential for interaction with user.
+ * We can change it anytime just playing with arguments that could help with:
+ * - position the first character of the string
+ * - text itself, that can contain everything displayable
+ * - color it with any color we like
+ */
+void MainWindow::drawStatus(int position, const char *text, int color) {
+  char emptyStr[winSize->w + 1];
+  memset(&emptyStr, 0x20, winSize->w);
+
+  /*
+   * Clear it first
+   */
+  mvwprintw(win, winSize->h + 1, 0, emptyStr);
+
+  /*
+   * Then draw
+   */
+  wattron(win, COLOR_PAIR(color));
+  mvwprintw(win, winSize->h + 1, position, text);
+  wattroff(win, COLOR_PAIR(color));
+}
+
 void MainWindow::drawInfo() {
+  std::stringstream position;
   int count = 0;
   int countUntilNow = start + selected;
 
@@ -349,16 +516,22 @@ void MainWindow::drawInfo() {
     count++;
   }
 
-  std::stringstream position;
-
   position << countUntilNow + 1 << "/" << count;
 
-  printInMiddle(win, winSize->h + 1, 0, winSize->w, (char *)"", COLOR_PAIR(5), (char *)' ');
-  printInMiddle(win, winSize->h + 1, 0, (winSize->w / 2), (char *)position.str().c_str(), COLOR_PAIR(5), (char *)NULL);
+  drawStatus((winSize->w / 2), (const char *)position.str().c_str(), 5);
+}
 
-  wattron(win, COLOR_PAIR(4));
-  mvwprintw(win, winSize->h + 1, winSize->w - 10, "? - help");
-  wattroff(win, COLOR_PAIR(4));
+int MainWindow::totalUnits() {
+  int count = 0;
+
+  for (auto unit : units) {
+    if (unit->id.size() == 0) {
+      continue;
+    }
+    count++;
+  }
+
+  return count;
 }
 
 void MainWindow::error(char *err) {
