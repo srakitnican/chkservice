@@ -114,9 +114,13 @@ void MainWindow::createMenu() {
         drawUnits();
         error((char *)"Updated..");
         break;
+      case 'G':
+        movePageEnd();
+        break;
       case 'g':
-        selected = units.size() - 1;
-        moveDown();
+        start = 0;
+        selected = 0;
+        moveUp();
         break;
       case '?':
         aboutWindow(screenSize);
@@ -201,6 +205,18 @@ void MainWindow::movePageDown() {
     start = max - ps;
     selected = ps;
   }
+
+  if (units[start + selected]->id.size() == 0) {
+    moveDown();
+  }
+}
+
+void MainWindow::movePageEnd() {
+  int ps = winSize->h - 3;
+  int max = units.size() - 1;
+
+  start = max - ps;
+  selected = ps;
 
   if (units[start + selected]->id.size() == 0) {
     moveDown();

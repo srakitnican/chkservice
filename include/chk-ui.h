@@ -60,6 +60,7 @@ class MainWindow {
     void moveDown();
     void movePageUp();
     void movePageDown();
+    void movePageEnd();
     void drawUnits();
     void drawItem(UnitItem *unit, int y);
     void drawStatus(int position, const char *text, int color);
