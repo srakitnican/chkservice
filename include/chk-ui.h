@@ -19,10 +19,15 @@
  */
 
 #ifndef _CHK_UI_H
-#define _CHKUI_H
+#define _CHK_UI_H
 
 #include <curses.h>
 #include "chk-ctl.h"
+
+enum _INPUT_FOR {
+  INPUT_FOR_LIST,
+  INPUT_FOR_SEARCH
+};
 
 /*
  * Makros that helps get control key combinations work properly
@@ -53,6 +58,7 @@ class MainWindow {
     int selected = 0;
     int start = 0;
     int totalUnits();
+    unsigned char inputFor = 0;
     void createWindow();
     void resize();
     void setSize();
@@ -70,6 +76,13 @@ class MainWindow {
     void updateUnits();
     void error(char *err);
     void reloadAll();
+    void listInput(int key);
+    /*
+     * Status bar
+     */
+    char searchString[BUFSIZ] = "";
+    void drawSearch();
+    void searchInput(int key);
 };
 
 void startCurses();

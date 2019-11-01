@@ -75,63 +75,109 @@ void MainWindow::createMenu() {
     int key = wgetch(stdscr);
     error(NULL);
 
-    switch(key) {
-      case 'k':
-      case 'p':
-      case KEY_UP:
-      case CTRL('p'):
-        moveUp();
-        break;
-      case 'j':
-      case 'n':
-      case KEY_DOWN:
-      case CTRL('n'):
-        moveDown();
-        break;
-      case 'f':
-      case KEY_NPAGE:
-      case CTRL('f'):
-        movePageDown();
-        break;
-      case 'b':
-      case KEY_PPAGE:
-      case CTRL('b'):
-        movePageUp();
-        break;
-      case 'q':
-        stopCurses();
-        delwin(win);
-        exit(0);
-        break;
-      case ' ':
-        toggleUnitState();
-        break;
-      case 's':
-        toggleUnitSubState();
-        break;
-      case 'r':
-        updateUnits();
-        drawUnits();
-        error((char *)"Updated..");
-        break;
-      case 'G':
-        movePageEnd();
-        break;
-      case 'g':
-        start = 0;
-        selected = 0;
-        moveUp();
-        break;
-      case '?':
-        aboutWindow(screenSize);
-        break;
-      case KEY_RESIZE:
-        resize();
+    switch(inputFor) {
+      case INPUT_FOR_SEARCH:
+        searchInput(key);
         break;
       default:
+        listInput(key);
         break;
     }
   }
+}
+
+void MainWindow::listInput(int key) {
+  switch(key) {
+    case '/':
+      inputFor = INPUT_FOR_SEARCH;
+      break;
+    case 'k':
+    case 'p':
+    case KEY_UP:
+    case CTRL('p'):
+      moveUp();
+      break;
+    case 'j':
+    case 'n':
+    case KEY_DOWN:
+    case CTRL('n'):
+      moveDown();
+      break;
+    case 'f':
+    case KEY_NPAGE:
+    case CTRL('f'):
+      movePageDown();
+      break;
+    case 'b':
+    case KEY_PPAGE:
+    case CTRL('b'):
+      movePageUp();
+      break;
+    case 'q':
+      stopCurses();
+      delwin(win);
+      exit(0);
+      break;
+    case ' ':
+      toggleUnitState();
+      break;
+    case 's':
+      toggleUnitSubState();
+      break;
+    case 'r':
+      updateUnits();
+      drawUnits();
+      error((char *)"Updated..");
+      break;
+    case 'G':
+      movePageEnd();
+      break;
+    case 'g':
+      start = 0;
+      selected = 0;
+      moveUp();
+      break;
+    case '?':
+      aboutWindow(screenSize);
+      break;
+    case KEY_RESIZE:
+      resize();
+      break;
+    default:
+      break;
+  }
+}
+
+void MainWindow::searchInput(int key) {
+  int slen;
+
+  switch(key) {
+    case 27: // ESC
+      memset(searchString, 0, BUFSIZ);
+      inputFor = INPUT_FOR_LIST;
+      break;
+    case KEY_BACKSPACE:
+      slen = strlen(searchString);
+      if (slen > 0) {
+        searchString[slen - 1] = 0;
+      } else {
+        inputFor = INPUT_FOR_LIST;
+      }
+      break;
+    default:
+      if (key > 10 && key < 128) {
+        sprintf(searchString, "%s%c", searchString, key);
+      }
+      break;
+  }
+}
+
+void MainWindow::drawSearch() {
+  char text[BUFSIZ] = "/";
+
+  sprintf(text, "%s%s", text, searchString);
+
+  drawStatus(1, text, 5);
 }
 
 void MainWindow::setSize() {
@@ -267,7 +313,11 @@ void MainWindow::drawUnits() {
     wattroff(win, A_REVERSE);
   }
 
-  drawInfo();
+  if (inputFor == INPUT_FOR_LIST) {
+    drawInfo();
+  } else {
+    drawSearch();
+  }
 
   refresh();
   wrefresh(win);
