@@ -24,6 +24,13 @@
 #include <curses.h>
 #include "chk-ctl.h"
 
+/*
+ * Makros that helps get control key combinations work properly
+ */
+#ifndef CTRL
+#define CTRL(c) ((c) & 037)
+#endif
+
 typedef struct RECTANGLE {
   int x;
   int y;
@@ -45,6 +52,7 @@ class MainWindow {
     std::vector<UnitItem *> units;
     int selected = 0;
     int start = 0;
+    int totalUnits();
     void createWindow();
     void resize();
     void setSize();

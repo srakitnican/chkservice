@@ -62,7 +62,6 @@ void MainWindow::resize() {
   drawUnits();
 }
 
-
 void MainWindow::createWindow() {
   win = newwin(screenSize->h, screenSize->w, 0, 0);
 }
@@ -78,19 +77,25 @@ void MainWindow::createMenu() {
 
     switch(key) {
       case 'k':
+      case 'p':
       case KEY_UP:
+      case CTRL('p'):
         moveUp();
         break;
       case 'j':
+      case 'n':
       case KEY_DOWN:
+      case CTRL('n'):
         moveDown();
         break;
       case 'f':
       case KEY_NPAGE:
+      case CTRL('f'):
         movePageDown();
         break;
       case 'b':
       case KEY_PPAGE:
+      case CTRL('b'):
         movePageUp();
         break;
       case 'q':
@@ -108,6 +113,10 @@ void MainWindow::createMenu() {
         updateUnits();
         drawUnits();
         error((char *)"Updated..");
+        break;
+      case 'g':
+        selected = units.size() - 1;
+        moveDown();
         break;
       case '?':
         aboutWindow(screenSize);
@@ -263,12 +272,6 @@ void MainWindow::drawItem(UnitItem *unit, int y) {
     return;
   }
 
-
-//    if (unit->id.find("acpid.service") == 0) {
-//      std::cout << unit->id << " " << unit->state << UNIT_STATE_DISABLED <<  std::endl;
-//      exit(0);
-//    }
-
   if (unit->state == UNIT_STATE_ENABLED) {
     wattron(win, COLOR_PAIR(2));
     mvwprintw(win, y, padding->x, "[x]");
@@ -337,17 +340,29 @@ void MainWindow::drawItem(UnitItem *unit, int y) {
 /*
  * Status line has a great potential for interaction with user.
  * We can change it anytime just playing with arguments that could help with:
- * - position the first character of the sring
- * - text themself that can contain everything displayable
- * - color it with every color we like
+ * - position the first character of the string
+ * - text itself, that can contain everything displayable
+ * - color it with any color we like
  */
 void MainWindow::drawStatus(int position, const char *text, int color) {
+  char emptyStr[winSize->w + 1];
+  memset(&emptyStr, 0x20, winSize->w);
+
+  /*
+   * Clean it first
+   */
+  mvwprintw(win, winSize->h + 1, 0, emptyStr);
+
+  /*
+   * Then draw
+   */
   wattron(win, COLOR_PAIR(color));
   mvwprintw(win, winSize->h + 1, position, text);
   wattroff(win, COLOR_PAIR(color));
 }
 
 void MainWindow::drawInfo() {
+  std::stringstream position;
   int count = 0;
   int countUntilNow = start + selected;
 
@@ -362,11 +377,22 @@ void MainWindow::drawInfo() {
     count++;
   }
 
-  std::stringstream position;
-
   position << countUntilNow + 1 << "/" << count;
 
   drawStatus((winSize->w / 2), (const char *)position.str().c_str(), 5);
+}
+
+int MainWindow::totalUnits() {
+  int count = 0;
+
+  for (auto unit : units) {
+    if (unit->id.size() == 0) {
+      continue;
+    }
+    count++;
+  }
+
+  return count;
 }
 
 void MainWindow::error(char *err) {
