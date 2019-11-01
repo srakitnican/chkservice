@@ -67,6 +67,7 @@ class MainWindow {
     void movePageUp();
     void movePageDown();
     void movePageEnd();
+    void moveTo(int position);
     void drawUnits();
     void drawItem(UnitItem *unit, int y);
     void drawStatus(int position, const char *text, int color);
@@ -81,8 +82,10 @@ class MainWindow {
      * Status bar
      */
     char searchString[BUFSIZ] = "";
+    int lastFound = 0;
     void drawSearch();
     void searchInput(int key);
+    void searchNext();
 };
 
 void startCurses();

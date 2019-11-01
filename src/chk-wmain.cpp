@@ -156,6 +156,10 @@ void MainWindow::searchInput(int key) {
       memset(searchString, 0, BUFSIZ);
       inputFor = INPUT_FOR_LIST;
       break;
+    case KEY_ENTER: // Ctrl-M
+    case 10: // Enter
+      searchNext();
+      break;
     case KEY_BACKSPACE:
       slen = strlen(searchString);
       if (slen > 0) {
@@ -165,6 +169,17 @@ void MainWindow::searchInput(int key) {
       }
       break;
     default:
+      /*
+       * A new search
+       */
+      if (lastFound != 0) {
+        memset(searchString, 0, BUFSIZ);
+        lastFound = 0;
+      }
+
+      /*
+       * Using something that looks like a string for search
+       */
       if (key > 10 && key < 128) {
         sprintf(searchString, "%s%c", searchString, key);
       }
@@ -173,15 +188,71 @@ void MainWindow::searchInput(int key) {
 }
 
 void MainWindow::drawSearch() {
+  /*
+   * Lets indicate it is a search input
+   */
   char text[BUFSIZ] = "/";
 
-  sprintf(text, "%s%s", text, searchString);
+  if (lastFound == 0) {
+     sprintf(text, "%s%s", text, searchString);
+  }
 
-  drawStatus(1, text, 5);
+  /*
+   * Draw it using any visible, light color
+   */
+  drawStatus(1, text, 0);
+}
+
+/*
+ * Looking for a next match
+ */
+void MainWindow::searchNext() {
+  int position = 0;
+
+  for (auto unit : units) {
+    if (unit->id.size() == 0) {
+      continue;
+    }
+
+    if (lastFound < position && unit->id.rfind(searchString) != std::string::npos) {
+      inputFor = INPUT_FOR_LIST;
+      lastFound = position;
+      moveTo(position);
+      return;
+    }
+
+    position++;
+  }
+
+  /*
+   * Nothing found
+   */
+  inputFor = INPUT_FOR_LIST;
+
+  /*
+   * Nothing at all
+   */
+  if (lastFound == 0) {
+    return;
+  }
+
+  /*
+   * Repeat search
+   */
+  lastFound = 0;
+  searchNext();
 }
 
 void MainWindow::setSize() {
   getmaxyx(stdscr, screenSize->h, screenSize->w);
+}
+
+void MainWindow::moveTo(int position) {
+  start = selected = 0;
+
+  for (int i = 0; i < position; i++) {
+      moveDown();
+  }
 }
 
 void MainWindow::moveUp() {
@@ -333,7 +404,8 @@ void MainWindow::drawItem(UnitItem *unit, int y) {
       title[0] = std::toupper(title[0]);
 
       printInMiddle(win, y, 0, winSize->w, (char *)"", COLOR_PAIR(3), (char *)' ');
-      printInMiddle(win, y, 0, winSize->w / 2, (char *)title.c_str(), COLOR_PAIR(3), (char *)' ');
+      printInMiddle(win, y, 0, winSize->w / 2, (char *)title.c_str(),
+          COLOR_PAIR(3), (char *)' ');
     }
     return;
   }
@@ -415,7 +487,7 @@ void MainWindow::drawStatus(int position, const char *text, int color) {
   memset(&emptyStr, 0x20, winSize->w);
 
   /*
-   * Clean it first
+   * Clear it first
    */
   mvwprintw(win, winSize->h + 1, 0, emptyStr);
 
