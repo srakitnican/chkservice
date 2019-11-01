@@ -233,6 +233,7 @@ void MainWindow::searchNext() {
    * Nothing at all
    */
   if (lastFound == 0) {
+    memset(searchString, 0, BUFSIZ);
     return;
   }
 
