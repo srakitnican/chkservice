@@ -1,7 +1,7 @@
 Source: chkservice
 Section: devel
 Priority: optional
-Maintainer: Svetlana Linuxenko <svetlana@linuxenko.pro>
+Maintainer: Svetlana Linuxenko
 Build-Depends: pkg-config, cmake, build-essential, libncurses5-dev, libsystemd-dev
 Homepage: https://github.com/linuxenko/chkservice
 

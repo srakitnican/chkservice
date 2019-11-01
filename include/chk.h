@@ -21,7 +21,7 @@
 #ifndef _CHK_H
 #define _CHK_H
 
-#define VERSION "0.2"
+#define VERSION "0.3"
 
 #define ABOUT_INFO "\n\
                     chkservice %s  \n\
@@ -35,6 +35,7 @@
 \n\
     Up/k   - move cursor up. Down/j   - move cursor down.\n\
     PgUp/b - move page up.   PgDown/f - move page down.\n\
+    / - for search.\n\
 \n\
   Action keys:\n\
 \n\

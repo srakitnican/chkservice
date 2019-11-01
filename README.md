@@ -86,6 +86,8 @@ make Test
 
 ### Changelog
 
+  * v0.3 - Search using `/` key added
+  * v0.3 - Emacs key bindings implemented
   * v0.2 - Integration with Travis was fixed
   * v0.2 - Window resize supoport added by Gilles Talis <gilles.talis@gmail.com>
 
