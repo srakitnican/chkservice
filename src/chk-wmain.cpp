@@ -334,6 +334,19 @@ void MainWindow::drawItem(UnitItem *unit, int y) {
   mvwprintw(win, y, leftPad, "%s", name.c_str());
 }
 
+/*
+ * Status line has a great potential for interaction with user.
+ * We can change it anytime just playing with arguments that could help with:
+ * - position the first character of the sring
+ * - text themself that can contain everything displayable
+ * - color it with every color we like
+ */
+void MainWindow::drawStatus(int position, const char *text, int color) {
+  wattron(win, COLOR_PAIR(color));
+  mvwprintw(win, winSize->h + 1, position, text);
+  wattroff(win, COLOR_PAIR(color));
+}
+
 void MainWindow::drawInfo() {
   int count = 0;
   int countUntilNow = start + selected;
@@ -353,12 +366,7 @@ void MainWindow::drawInfo() {
 
   position << countUntilNow + 1 << "/" << count;
 
-  printInMiddle(win, winSize->h + 1, 0, winSize->w, (char *)"", COLOR_PAIR(5), (char *)' ');
-  printInMiddle(win, winSize->h + 1, 0, (winSize->w / 2), (char *)position.str().c_str(), COLOR_PAIR(5), (char *)NULL);
-
-  wattron(win, COLOR_PAIR(4));
-  mvwprintw(win, winSize->h + 1, winSize->w - 10, "? - help");
-  wattroff(win, COLOR_PAIR(4));
+  drawStatus((winSize->w / 2), (const char *)position.str().c_str(), 5);
 }
 
 void MainWindow::error(char *err) {

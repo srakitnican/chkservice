@@ -54,6 +54,7 @@ class MainWindow {
     void movePageDown();
     void drawUnits();
     void drawItem(UnitItem *unit, int y);
+    void drawStatus(int position, const char *text, int color);
     void drawInfo();
     void toggleUnitState();
     void toggleUnitSubState();
