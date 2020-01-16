@@ -10,18 +10,10 @@
 
 ### Installation
 
-Debian >= 10
+APT
 
 ```
 sudo apt install chkservice
-```
-
-Ubuntu
-
-```
-sudo add-apt-repository ppa:linuxenko/chkservice
-sudo apt-get update
-sudo apt-get install chkservice
 ```
 
 Arch
@@ -32,14 +24,9 @@ cd chkservice
 makepkg -si
 ```
 
-Fedora
-```
-dnf copr enable srakitnican/default
-dnf install chkservice
-```
 ### Usage
 
-`chkservice` require super user privileges to make changes into unit states or sysv scripts. For user it works read-only.
+`chkservice` requires super user privileges to make changes. For user it works read-only.
 
 ### Dependencies
 
